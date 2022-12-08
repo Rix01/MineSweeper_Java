@@ -1,29 +1,27 @@
-import javafx.scene.paint.Color;
+import javafx.scene.paint.Color;		// The Color class is used to encapsulate colors in the default sRGB color space
+import java.util.ArrayList;				// It is one of several classes that inherited the List interface. Unlike the arrangement, the size changes variably.
+import javafx.scene.control.Button;		// Button control. When a button is pressed and released a ActionEvent is sent.
+import javafx.scene.image.Image;		// The Image class represents graphical images and is used for loading images
+import javafx.scene.image.ImageView;	// The ImageView is a Node used for painting images loaded with Image class
+import javafx.scene.input.MouseButton;	// Mapping for Button Names
+import javafx.scene.input.MouseEvent;	// When mouse event occurs, the top-most node under cursor is picked and the event is delivered to it through capturing and bubbling phases described at EventDispatcher
+import javafx.scene.layout.StackPane;	// StackPane lays out its children in a back-to-front stack
 
-import java.util.ArrayList;
-
-import javafx.scene.control.Button;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.StackPane;
-
+// Tile class inherited StackPane
 class Tile extends StackPane {
-
     Button btn = new Button();
-    boolean hasBomb;
-    int numBombs = 0;
+    boolean hasBomb;	// Boolean variable to distinguish whether there is a mine or not
+    int numBombs = 0;	// numBombs initialize to zero
     Color color = null;
-    private boolean flagged = false;
-    ArrayList<Tile> neighbours = new ArrayList<Tile>();
+    private boolean flagged = false;	// Boolean variable for determining whether to install a flag
+    ArrayList<Tile> neighbours = new ArrayList<Tile>();	// Use generic programming
     private boolean active = true;
 
-    static Image flag = new Image("kr_flag.png");
-
+    static Image flag = new Image("kr_flag.png");	// Importing the flag image in workspace
+    
     Tile(int x, int y, boolean hasBomb) {
         this.hasBomb = hasBomb;
-
+        
         if (hasBomb) {
             Main.numBombs++;
         }
@@ -42,7 +40,7 @@ class Tile extends StackPane {
 
     private void onClick(MouseEvent e) {
 
-        // 마우스 왼쪽 클릭
+        // Mouse left click
         if (e.getButton() == MouseButton.PRIMARY) {
             if(!flagged) {
 
@@ -53,7 +51,6 @@ class Tile extends StackPane {
                 if (hasBomb) {
                     Main.gameOver();
                 } else {
-                    // Blank
                     if (this.numBombs == 0) {
                         blankClick(this);
                     } else {
@@ -63,7 +60,7 @@ class Tile extends StackPane {
                 }
             }
         }
-        // 마우스 오른쪽 클릭
+        // Mouse right click
         else {
             if (!flagged) {
                 flagged = true;
@@ -82,7 +79,7 @@ class Tile extends StackPane {
         }
     }
     
-    // 빈칸 클릭했을 경우
+    // If you click blank,
     private void blankClick(Tile tile) {
         for (int i = 0; i < tile.neighbours.size(); i++) {
             if (tile.neighbours.get(i).active) {
