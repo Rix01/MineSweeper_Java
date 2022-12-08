@@ -1,66 +1,67 @@
-import java.util.ArrayList;	// List 인터페이스를 상속받은 여러 클래스 중 하나. 배열과 달리 크기가 가변적으로 변함.
-import java.util.Random;	// 난수 발생
-import java.util.Timer;		// 실제 타이머의 기능을 수행하는 클래스
-import java.util.TimerTask;	// "Timer" 클래스가 수행되어야 할 내용을 작성하는 클래스
+import java.util.ArrayList;	// It is one of several classes that inherited the List interface. Unlike the arrangement, the size changes variably.
+import java.util.Random;	// Random number generation
+import java.util.Timer;		// It allows specific tasks to be repeatedly executed in the background for a specific time or period of time.
+import java.util.TimerTask;	// It is a class that becomes a unit of a task when scheduling using a timer
 
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.stage.Stage;	// Stage는 한 번에 하나의 Scene 가질 수 있음.
-import javafx.scene.Parent;	// Scene을 생성하려면 UI의 루트 컨테이너인 javafx.scene.Parent가 필요함.
-import javafx.scene.Scene;	// Scene
-import javafx.scene.control.Alert;	// 경고창
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;	// 버튼
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;	
-import javafx.scene.control.MenuItem;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;	// Pane : 레이아웃. 스테이지에 올려놓는 타일을 말한다. Pane을 Scene 안에 등록함.
-import javafx.scene.layout.VBox;	// VBox : 수직으로 배치
-import javafx.scene.paint.Color;
+import javafx.application.Application;	// Application class from which JavaFX applications extend.
+import javafx.application.Platform;		// Application platform support class.
+import javafx.stage.Stage;				// Stage class is the top level JavaFX container. Stage can have one Scene at a time.
+import javafx.scene.Parent;				// To create a scene, the root container of the UI, 'javafx.scene.Parent' is required.
+import javafx.scene.Scene;				// The container for all content in a scene graph
+import javafx.scene.control.Alert;		// Support for a number of pre-built dialog types that can be easily shown to users to prompt for a response.
+import javafx.scene.control.Alert.AlertType; // When creating an Alert instance, users must pass in an Alert.AlertType enumeration value
+import javafx.scene.control.ButtonType;	// The ButtonType class is used as part of the JavaFX Dialog API to specify which buttons should be shown to users in the dialogs
+import javafx.scene.control.Menu; 		// A popup menu of actionable items which is displayed to the user only upon request
+import javafx.scene.control.MenuBar; 	// A MenuBar control traditionally is placed at the very top of the user interface, and embedded within it are Menus
+import javafx.scene.control.MenuItem; 	// MenuItem is intended to be used in conjunction with Menu to provide options to users
+import javafx.scene.image.Image; 		// The Image class represents graphical images and is used for loading images
+import javafx.scene.image.ImageView; 	// The ImageView is a Node used for painting images loaded with Image class
+import javafx.scene.layout.Pane;		// Base class for layout panes which need to expose the children list as public so that users of the subclass can freely add/remove children
+import javafx.scene.layout.VBox;		// VBox lays out its children in a single vertical column
+import javafx.scene.paint.Color;		// The Color class is used to encapsulate colors in the default sRGB color space
 
-// 메인클래스는 반드시 Application을 상속을 해서 사용해야 함.
+// The main class must inherit and use the application.
 public class Main extends Application {
-    private static double bomb = 0.1;	// easy가 디폴트 값
-    private static int gridSize = 10;	// 10*10이 디폴트 값
-    private static Tile[][] grid;	// 타일 2차원 배열
-    private static Stage main;
-    private static VBox vbox = new VBox();	// vbox 생성
+    private static double bomb = 0.1;	// Easy is the default value
+    private static int gridSizeX = 10;	// Number of rows. Default is 10.
+    private static int gridSizeY = 10;	// Number of columns. Default is 10.
+    private static Tile[][] grid;		// a two-dimensional array
+    private static Stage main;			// Stage declaration
+    private static VBox vbox = new VBox();	// Create Vbox
 
-    static int numBombs, foundBombs;
-    private static int secondsPassed;
-    public static Timer timer;
-    static Image mine = new Image("mine.png");
+    static int numBombs, foundBombs;	// variables related to the number of mines
+    private static int secondsPassed;	// Variable required for Timer Usage
+    public static Timer timer;			// Create Timer Object
+    static Image mine = new Image("mine.png");	// Importing the mine image in workspace
 
-    // start 메소드는 윈도우를 보여주는 역할임.
+    // The start method is the role of showing windows
     @Override
     public void start(Stage stage) {
-
-        grid = new Tile[gridSize][gridSize];	// 타일 생성
-
+        grid = new Tile[gridSizeX][gridSizeY];	// Create Tile
+        
+        // Create TimerTask
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                secondsPassed++;
+                secondsPassed++;	// When it runs, the time is ++
             }
         };
-        timer = new Timer();
-        timer.scheduleAtFixedRate(task, 1000, 1000);	// 1000 = 1초. 1초마다 task 수행
+        timer = new Timer();		// Declare Timer Object
+        timer.scheduleAtFixedRate(task, 1000, 1000);	// 1000 = 1 second. Performing a task every 1 second.
         
         main = stage;
         
-        // X(닫기) 버튼 누르면 나가지게 함
+        // Press the X button to exit
         main.setOnCloseRequest(e -> {
             Platform.exit();
             System.exit(0);
         });
 
-        main.getIcons().add(mine);
-        main.setTitle("Minesweeper(지뢰찾기) - By Team3");
+        main.getIcons().add(mine);	// Set Mine Icon
+        main.setTitle("Minesweeper(지뢰찾기) - By Team3");	// Set Title
         
-        // 컨테이너 상단에 배치되어, 다양한 작업을 선택하도록 해줌.
-        // 메뉴 아이템으로 MenuItem, CheckMenuItem 등 추가 가능. 서브 메뉴 갖는 Menu도 추가 가능.
+        // It is placed at the top of the container, allowing you to select various tasks.
+        // Menu Item, Check Menu Item, etc. can be added as a menu item. Menu with sub-menu can also be added.
         MenuBar menuBar = new MenuBar();
 
         Menu menuFile = new Menu("Etc");
@@ -74,7 +75,7 @@ public class Main extends Application {
             aboutAlert.showAndWait();
         });
         
-        // 어떻게 플레이하는지 알려주는 메뉴 아이템
+        // It's a menu item that tells you how to play
         MenuItem help = new MenuItem("Help");
         help.setOnAction(e -> {
             Alert helpAlert = new Alert(Alert.AlertType.INFORMATION,
@@ -89,57 +90,62 @@ public class Main extends Application {
         
         menuFile.getItems().addAll(about, help);
         
-        // 타일 사이즈 조정을 위한 메뉴
+        // Menu for resizing tiles
         Menu menuSize = new Menu("Size");
+        
+        MenuItem five = new MenuItem("5x5");
+        five.setOnAction(e -> {
+            gridSizeX = 5; // 5*5
+            gridSizeY = 5;
+            reload();
+        });
         MenuItem ten = new MenuItem("10x10");
-        ten.setOnAction(e -> {
-            gridSize = 10;	// 10*10
+        ten.setOnAction(e-> {
+            gridSizeX = 10;	// 10*10
+            gridSizeY = 10;
             reload();
         });
         MenuItem fifteen = new MenuItem("15x15");
         fifteen.setOnAction(e -> {
-            gridSize = 15;	// 15*15
+            gridSizeX = 15;	// 15*15
+            gridSizeY = 15;
             reload();
         });
+        /*
+         * MenuItem fiftwen = new MenuItem("15x20");
+        fiftwen.setOnAction(e -> {
+            gridSizeX = 15;	// 15*20
+            gridSizeY = 20;
+            reload();
+        });
+         * */
         MenuItem twenty = new MenuItem("20x20");
         twenty.setOnAction(e -> {
-            gridSize = 20;	// 20*20
+            gridSizeX = 20;	// 20*20
+            gridSizeY = 20;
             reload();
         });
-        menuSize.getItems().addAll(ten, fifteen, twenty);
         
-        // 게임 난이도 조절을 위한 메뉴
+        menuSize.getItems().addAll(five, ten, fifteen, twenty);
+        
+        // Menu for controlling game difficulty
         Menu menuDifficulty = new Menu("Difficulty");
         MenuItem easy = new MenuItem("Easy - 10% Bombs");
         easy.setOnAction(e -> {
-            bomb = 0.1;	// 타일 수의 10%가 지뢰
+            bomb = 0.1;	// Set 10% of tile count as mine count
             reload();
         });
         MenuItem medium = new MenuItem("Medium - 15% Bombs");
         medium.setOnAction(e -> {
-            bomb = 0.15;	// 타일 수의 15%가 지뢰
+            bomb = 0.15;	// Set 15% of tile count as mine count
             reload();
         });
         MenuItem hard = new MenuItem("Hard - 20% Bombs");
         hard.setOnAction(e -> {
-            bomb = 0.2;	// 타일 수의 20%가 지뢰
+            bomb = 0.2;	// Set 20% of tile count as mine count
             reload();
         });
         menuDifficulty.getItems().addAll(easy, medium, hard);
-        /*
-         * Menu menuHint = new Menu("Item");
-        MenuItem small = new MenuItem("Small Item");
-        small.setOnAction(e -> {
-        	numBombs--;
-        	foundBombs--;
-        });
-        MenuItem big = new MenuItem("Big Item");
-        big.setOnAction(e -> {
-        	
-        });
-        menuHint.getItems().addAll(small, big);
-         */
-        
         
         menuBar.getMenus().addAll(menuFile, menuSize, menuDifficulty);
 
@@ -147,19 +153,19 @@ public class Main extends Application {
 
         Scene scene = new Scene(vbox);
 
-        scene.getStylesheets().add("style.css");
+        scene.getStylesheets().add("style.css");	// Use style.css
         main.setScene(scene);
         main.setResizable(false);
         main.sizeToScene();
         main.show();
     }
     
-    // 게임 다시 로드
+    // Reload the game
     private static void reload() {
-    	// 타일 설정
-        grid = new Tile[gridSize][gridSize];
+    	// Tile Settings
+        grid = new Tile[gridSizeX][gridSizeY];
 
-        secondsPassed = 0;
+        secondsPassed = 0;	// Initialize to zero
 
         TimerTask task = new TimerTask() {
             @Override
@@ -176,19 +182,19 @@ public class Main extends Application {
         main.sizeToScene();
     }
 
-    // 게임 내용
+    // Game contents
     private static Parent createContent() {
 
-        // 지뢰의 수와 찾은 지뢰의 수 0으로 초기화
+        // Initialize to zero the number of mines and the number of mines found
         numBombs = 0;
         foundBombs = 0;
 
         Pane root = new Pane();
-        root.setPrefSize(gridSize * 35, gridSize * 35);
+        root.setPrefSize(gridSizeX * 35, gridSizeY * 35);	// Convenience method for overriding the region's computed preferred width and height
 
-        // 타일과 버튼 생성
-        for (int y = 0; y < gridSize; y++) {
-            for (int x = 0; x < gridSize; x++) {
+        // Creating Tiles and Buttons
+        for (int y = 0; y < gridSizeY; y++) {
+            for (int x = 0; x < gridSizeX; x++) {
 
                 Tile tile = new Tile(x, y, false);
                 grid[x][y] = tile;
@@ -196,12 +202,12 @@ public class Main extends Application {
             }
         }
 
-        // 지뢰를 타일에 랜덤으로 배치
-        for(int i = 0; i < gridSize*gridSize*bomb; i++){
+        // Place mines randomly on tiles
+        for(int i = 0; i < gridSizeX*gridSizeY*bomb; i++){
             Random rand = new Random();
-            int x = rand.nextInt(gridSize);
-            int y = rand.nextInt(gridSize);
-
+            int x = rand.nextInt(gridSizeX);
+            int y = rand.nextInt(gridSizeY);
+            // If there's a mine in grid[x][y]
             if(grid[x][y].hasBomb){
                 if (i == 0) {
                     i = 0;
@@ -209,13 +215,14 @@ public class Main extends Application {
                     i--;
                 }
             }
+            // If grid[x][y] doesn't have a mine
             else{
                 grid[x][y].hasBomb = true;
                 numBombs++;
             }
         }
 
-        // 이웃에 지뢰가 얼마나 있는지 타일에 값 추가 & 색 설정
+        // Add value & color to tiles for how many mines are in the neighborhood
         for (int y = 0; y < grid.length; y++) {
             for (int x = 0; x < grid[0].length; x++) {
 
@@ -232,7 +239,7 @@ public class Main extends Application {
                     int newX = x + dx;
                     int newY = y + dy;
 
-                    if (newX >= 0 && newX < gridSize && newY >= 0 && newY < gridSize) {
+                    if (newX >= 0 && newX < gridSizeX && newY >= 0 && newY < gridSizeY) {
                         neighbours.add(grid[newX][newY]);
                         if (grid[newX][newY].hasBomb) {
                             numNeighboursBomb++;
@@ -242,10 +249,10 @@ public class Main extends Application {
 
                 grid[x][y].numBombs = numNeighboursBomb;
                 grid[x][y].neighbours = neighbours;
-
+                // Color Settings
                 Color[] colors = { null, Color.BLUE, Color.GREEN, Color.RED, Color.DARKBLUE, Color.DARKRED, Color.CYAN,
                         Color.BLACK, Color.DARKGRAY };
-
+                
                 grid[x][y].color = colors[grid[x][y].numBombs];
 
             }
@@ -253,10 +260,10 @@ public class Main extends Application {
         return root;
     }
 
-    // 지뢰를 눌렀을 때 -> 게임오버 처리
+    // When Mines are pressed -> Game Over Processing
     public static void gameOver() {
-        for (int y = 0; y < gridSize; y++) {
-            for (int x = 0; x < gridSize; x++) {
+        for (int y = 0; y < gridSizeY; y++) {
+            for (int x = 0; x < gridSizeX; x++) {
                 if (grid[x][y].hasBomb) {
                     grid[x][y].btn.setGraphic(new ImageView(mine));
                     grid[x][y].btn.setDisable(true);
@@ -277,19 +284,19 @@ public class Main extends Application {
 
     }
 
-    // 모든 지뢰를 다 찾았을 때 -> 승리 표시
+    // When all mines are found -> show victory
     public static void win() {
-
-        Image winTrophy = new Image("kr_Win.png");
-        ImageView winTrophyView = new ImageView(winTrophy);
-        winTrophyView.setSmooth(true);
-        winTrophyView.setPreserveRatio(true);
-        winTrophyView.setFitHeight(100);
+    	
+        Image kr_Win = new Image("kr_Win.png");
+        ImageView kr_WinView = new ImageView(kr_Win);
+        kr_WinView.setSmooth(true);
+        kr_WinView.setPreserveRatio(true);
+        kr_WinView.setFitHeight(100);
 
         Alert win = new Alert(AlertType.CONFIRMATION);
         ((Stage) win.getDialogPane().getScene().getWindow()).getIcons().add(mine);
         win.setTitle("Win! 승리!");
-        win.setGraphic(winTrophyView);
+        win.setGraphic(kr_WinView);
         win.setHeaderText("Congratulations!\n" + "축하합니다!");
         win.setContentText("You found all the bombs in " + secondsPassed + " seconds.\n" + "당신은 모든 지뢰를 " + secondsPassed + "초만에 찾았습니다.");
         win.showAndWait();
